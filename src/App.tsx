@@ -111,12 +111,25 @@ function App() {
         return getColorByCost(cost ?? -1); // Окрашивание по стоимости
     };
 
+    const getHintContent = (site: ISite, costInfo: ICost | undefined) => {
+        if (!costInfo) {
+            return `ID: ${site.site_id}, Название: ${site.site_name}`;
+        }
+
+        return `ID: ${site.site_id}, Название: ${site.site_name}<br>
+            🕒 Затраты: ${costInfo.cost} мин.<br>
+            ⏳ Ожидание: ${costInfo.iwait} мин.<br>
+            🚌 Время в салоне: ${costInfo.inveht} мин.<br>
+            🔄 Пересадки: ${costInfo.xnum}<br>
+            ⚠️ Штраф: ${costInfo.xpen}`;
+    };
+
     return (
         <>
             <div className="card">
                 <YMaps>
                     <Map
-                        style={{ height: "80vh", width: "80vw" }}
+                        style={{height: "80vh", width: "80vw"}}
                         defaultState={defaultState}
                         modules={["control.ZoomControl", "control.FullscreenControl", "geoObject.addon.hint"]}
                         onClick={() => setSelectedStop(null)}
@@ -134,14 +147,7 @@ function App() {
                                     key={index}
                                     geometry={[site.latitude, site.longitude]}
                                     properties={{
-                                        hintContent: costForFinalStop
-                                            ? `ID: ${site.site_id}, Название: ${site.site_name}
-                                                \nЗатраты: ${costForFinalStop.cost} мин.
-                                                \nОжидание: ${costForFinalStop.iwait} мин.
-                                                \nВремя в салоне: ${costForFinalStop.inveht} мин.
-                                                \nПересадки: ${costForFinalStop.xnum}
-                                                \nШтраф: ${costForFinalStop.xpen}`
-                                            : `ID: ${site.site_id}, Название: ${site.site_name}`,
+                                        hintContent: getHintContent(site, costForFinalStop),
                                     }}
                                     options={{
                                         preset: getPlacemarkPreset(isSelected, costForFinalStop ? costForFinalStop.cost : null),
