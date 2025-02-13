@@ -1,59 +1,45 @@
 import './App.css';
 import { useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
-import { parse } from "papaparse";
 import { ICost, ISite, SelectedStopType } from "./types.ts";
+import {useFetchCSV} from "./useFetchCSV.tsx";
+
+
+// Функция преобразования данных для остановок
+const transformSites = (data: any[]): ISite[] =>
+    data.map((site: any): ISite => ({
+        ...site,
+        latitude: parseFloat(site.latitude) || 0,
+        longitude: parseFloat(site.longitude) || 0,
+    }));
+
+// Функция преобразования данных для стоимости
+const transformCosts = (data: any[]): ICost[] =>
+    data.map((cost: any): ICost => ({
+        ...cost,
+        site_id_from: Number(cost.site_id_from),
+        site_id_to: Number(cost.site_id_to),
+        iwait: parseFloat(cost.iwait) || 0,
+        inveht: parseFloat(cost.inveht) || 0,
+        xwait: parseFloat(cost.xwait) || 0,
+        xpen: parseFloat(cost.xpen) || 0,
+        xnum: parseFloat(cost.xnum) || 0,
+        cost: parseFloat(cost.cost) || 0,
+    }));
 
 
 function App() {
-    const [sites, setSites] = useState<ISite[]>([]);
-    const [costData, setCostData] = useState<ICost[]>([]);
     const [filteredCosts, setFilteredCosts] = useState<ICost[]>([]);
     const [selectedStop, setSelectedStop] = useState<SelectedStopType>(null);
+
+    const { data: sites } = useFetchCSV<ISite>("/sites.csv", transformSites);
+    const { data: costData } = useFetchCSV<ICost>("/costs.csv", transformCosts);
 
     const defaultState = {
         center: [55.782, 37.615],
         zoom: 15,
         controls: ["zoomControl", "fullscreenControl"],
     };
-
-    useEffect(() => {
-        fetch("/sites.csv")
-            .then((response) => response.text())
-            .then((csvText) => {
-                const parsedData = parse(csvText, { header: true, skipEmptyLines: true, delimiter: ";" });
-
-                const formattedData = parsedData.data.map((site: any): ISite => ({
-                    ...site,
-                    latitude: parseFloat(site.latitude) || 0,
-                    longitude: parseFloat(site.longitude) || 0,
-                }));
-
-                setSites(formattedData);
-            });
-    }, []);
-
-    useEffect(() => {
-        fetch("/costs.csv")
-            .then((response) => response.text())
-            .then((csvText) => {
-                const parsedData = parse(csvText, { header: true, skipEmptyLines: true, delimiter: ";" });
-
-                const formattedData = parsedData.data.map((cost: any): ICost => ({
-                    ...cost,
-                    site_id_from: Number(cost.site_id_from),
-                    site_id_to: Number(cost.site_id_to),
-                    iwait: parseFloat(cost.iwait) || 0,
-                    inveht: parseFloat(cost.inveht) || 0,
-                    xwait: parseFloat(cost.xwait) || 0,
-                    xpen: parseFloat(cost.xpen) || 0,
-                    xnum: parseFloat(cost.xnum) || 0,
-                    cost: parseFloat(cost.cost) || 0,
-                }));
-
-                setCostData(formattedData);
-            });
-    }, []);
 
     useEffect(() => {
         if (!selectedStop) {
@@ -137,7 +123,6 @@ function App() {
                                     }}
                                     onClick={() => {
                                         setSelectedStop([site.latitude, site.longitude]);
-                                        console.log("Выбранная точка:", [site.latitude, site.longitude]);
                                     }}
                                 />
                             ) : null;
