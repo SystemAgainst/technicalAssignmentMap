@@ -1,10 +1,10 @@
 import './App.css'
-import { useEffect, useRef, useState, } from "react";
-import { YMaps, Map, Placemark, } from "@pbe/react-yandex-maps";
+import { useEffect, useState } from "react";
+import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { parse } from "papaparse";
 
 
-interface Site {
+interface ISite {
     site_id: string;
     site_name: string;
     longitude: number;
@@ -12,9 +12,7 @@ interface Site {
 }
 
 function App() {
-    const mapRef = useRef<any>(null);
-
-    const [sites, setSites] = useState<Site[]>([]);
+    const [sites, setSites] = useState<ISite[]>([]);
     const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
 
     const defaultState = {
@@ -27,11 +25,7 @@ function App() {
         fetch("/sites.csv")
             .then((response) => response.text())
             .then((csvText) => {
-                const parsedData = parse(
-                    csvText,
-                    { header: true, skipEmptyLines: true, delimiter: ";" }
-                );
-                console.log(parsedData);
+                const parsedData = parse(csvText, { header: true, skipEmptyLines: true, delimiter: ";" });
                 const formattedData = parsedData.data.map((site: any): Site => ({
                     ...site,
                     latitude: parseFloat(site.latitude) || 0,
@@ -41,27 +35,23 @@ function App() {
             });
     }, []);
 
-    // const handlePlacemarkClick = (site: Site) => {
-    //     setSelectedCoords([site.latitude, site.longitude]);
-    //     console.log("Выбранная точка:", [site.latitude, site.longitude]);
-    // }
-
     return (
         <>
             <div className="card">
                 <YMaps>
                     <Map
-                        instanceRef={mapRef}
+                        style={{ height: "80vh", width: "80vw" }}
                         defaultState={defaultState}
-                        modules={["control.ZoomControl", "control.FullscreenControl"]}
-                        onClick={() => {}}
+                        modules={["control.ZoomControl", "control.FullscreenControl", "geoObject.addon.hint"]}
                     >
                         {sites.map((site, index) => (
                             site.latitude && site.longitude ? (
                                 <Placemark
                                     key={index}
                                     geometry={[site.latitude, site.longitude]}
-                                    properties={{ hintContent: site.site_name }}
+                                    properties={{
+                                        hintContent: `ID: ${site.site_id}, Название: ${site.site_name}`,
+                                    }}
                                     onClick={() => {
                                         setSelectedCoords([site.latitude, site.longitude]);
                                         console.log("Выбранная точка:", [site.latitude, site.longitude]);
@@ -73,7 +63,7 @@ function App() {
                 </YMaps>
             </div>
         </>
-    )
+    );
 }
 
-export default App
+export default App;
