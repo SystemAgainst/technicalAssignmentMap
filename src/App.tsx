@@ -1,31 +1,15 @@
-import './App.css'
+import './App.css';
 import { useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { parse } from "papaparse";
+import { ICost, ISite, SelectedStopType } from "./types.ts";
 
-interface ISite {
-    site_id: string;
-    site_name: string;
-    longitude: number;
-    latitude: number;
-}
-
-interface ICost {
-    site_id_from: number;
-    site_id_to: number;
-    iwait: number;
-    inveht: number;
-    xwait: number;
-    xpen: number;
-    xnum: number;
-    cost: number;
-}
 
 function App() {
     const [sites, setSites] = useState<ISite[]>([]);
     const [costData, setCostData] = useState<ICost[]>([]);
     const [filteredCosts, setFilteredCosts] = useState<ICost[]>([]);
-    const [selectedStop, setSelectedStop] = useState<[number, number] | null>(null);
+    const [selectedStop, setSelectedStop] = useState<SelectedStopType>(null);
 
     const defaultState = {
         center: [55.782, 37.615],
@@ -85,7 +69,6 @@ function App() {
 
         const costsForSelectedStop = costData.filter((cost) => cost.site_id_from === Number(selectedSite.site_id));
 
-        console.log("Фильтрованные маршруты для остановки:", selectedSite.site_id, costsForSelectedStop);
         setFilteredCosts(costsForSelectedStop);
     }, [selectedStop, costData, sites]);
 
@@ -108,7 +91,7 @@ function App() {
         if (isSelected) {
             return "islands#blueIcon"; // Выбранная остановка
         }
-        return getColorByCost(cost ?? -1); // Окрашивание по стоимости
+        return getColorByCost(cost ?? -1);
     };
 
     const getHintContent = (site: ISite, costInfo: ICost | undefined) => {
