@@ -13,7 +13,7 @@ interface ISite {
 
 function App() {
     const [sites, setSites] = useState<ISite[]>([]);
-    const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(null);
+    const [selectedStop, setSelectedStop] = useState<[number, number] | null>(null);
 
     const defaultState = {
         center: [55.782, 37.615],
@@ -26,7 +26,7 @@ function App() {
             .then((response) => response.text())
             .then((csvText) => {
                 const parsedData = parse(csvText, { header: true, skipEmptyLines: true, delimiter: ";" });
-                const formattedData = parsedData.data.map((site: any): Site => ({
+                const formattedData = parsedData.data.map((site: any): ISite => ({
                     ...site,
                     latitude: parseFloat(site.latitude) || 0,
                     longitude: parseFloat(site.longitude) || 0,
@@ -43,22 +43,28 @@ function App() {
                         style={{ height: "80vh", width: "80vw" }}
                         defaultState={defaultState}
                         modules={["control.ZoomControl", "control.FullscreenControl", "geoObject.addon.hint"]}
+                        onClick={() => setSelectedStop(null)}
                     >
-                        {sites.map((site, index) => (
-                            site.latitude && site.longitude ? (
+                        {sites.map((site, index) => {
+                            const isSelected = selectedStop && selectedStop[0] === site.latitude && selectedStop[1] === site.longitude;
+
+                            return site.latitude && site.longitude ? (
                                 <Placemark
                                     key={index}
                                     geometry={[site.latitude, site.longitude]}
                                     properties={{
                                         hintContent: `ID: ${site.site_id}, Название: ${site.site_name}`,
                                     }}
+                                    options={{
+                                        preset: isSelected ? "islands#redIcon" : "islands#blueIcon",
+                                    }}
                                     onClick={() => {
-                                        setSelectedCoords([site.latitude, site.longitude]);
+                                        setSelectedStop([site.latitude, site.longitude]);
                                         console.log("Выбранная точка:", [site.latitude, site.longitude]);
                                     }}
                                 />
-                            ) : null
-                        ))}
+                            ) : null;
+                        })}
                     </Map>
                 </YMaps>
             </div>
