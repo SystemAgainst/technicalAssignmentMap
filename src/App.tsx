@@ -2,8 +2,14 @@ import './App.css';
 import { useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { ICost, ISite, SelectedStopType } from "./types.ts";
-import {useFetchCSV} from "./useFetchCSV.tsx";
-import {getColorByCost, getHintContent} from "./hooks";
+import { useFetchCSV } from "./useFetchCSV.tsx";
+import { getHintContent, getPlacemarkPreset, } from "./hooks";
+
+/*
+* TODO
+*  [] make map for colors
+*  [] types for hooks
+* */
 
 
 // Функция преобразования данных для остановок
@@ -58,13 +64,6 @@ function App() {
 
         setFilteredCosts(costsForSelectedStop);
     }, [selectedStop, costData, sites]);
-
-    const getPlacemarkPreset = (isSelected: boolean, cost: number | null) => {
-        if (isSelected) {
-            return "islands#blueIcon"; // Выбранная остановка
-        }
-        return getColorByCost(cost ?? -1);
-    };
 
     return (
         <>
