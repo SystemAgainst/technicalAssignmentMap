@@ -2,7 +2,7 @@ import './App.css';
 import { useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { ICost, ISite, SelectedStopType } from "./types.ts";
-import { useFetchCSV } from "./useFetchCSV.tsx";
+import { useFetchCSV } from "./utils";
 import { getHintContent, getPlacemarkPreset, } from "./hooks";
 
 /*
