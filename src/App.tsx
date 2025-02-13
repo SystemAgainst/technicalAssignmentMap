@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { ICost, ISite, SelectedStopType } from "./types.ts";
 import {useFetchCSV} from "./useFetchCSV.tsx";
+import {getColorByCost, getHintContent} from "./hooks";
 
 
 // Функция преобразования данных для остановок
@@ -58,39 +59,11 @@ function App() {
         setFilteredCosts(costsForSelectedStop);
     }, [selectedStop, costData, sites]);
 
-    const getColorByCost = (cost: number) => {
-        switch (true) {
-            case cost <= 5 && cost > 0:
-                return "islands#greenIcon";
-            case cost > 5 && cost <= 15:
-                return "islands#yellowIcon";
-            case cost > 15 && cost <= 30:
-                return "islands#redIcon";
-            case cost > 30:
-                return "islands#violetIcon";
-            default:
-                return "islands#blackIcon"; // Если нет маршрута
-        }
-    };
-
     const getPlacemarkPreset = (isSelected: boolean, cost: number | null) => {
         if (isSelected) {
             return "islands#blueIcon"; // Выбранная остановка
         }
         return getColorByCost(cost ?? -1);
-    };
-
-    const getHintContent = (site: ISite, costInfo: ICost | undefined) => {
-        if (!costInfo) {
-            return `ID: ${site.site_id}, Название: ${site.site_name}`;
-        }
-
-        return `ID: ${site.site_id}, Название: ${site.site_name}<br>
-            🕒 Затраты: ${costInfo.cost} мин.<br>
-            ⏳ Ожидание: ${costInfo.iwait} мин.<br>
-            🚌 Время в салоне: ${costInfo.inveht} мин.<br>
-            🔄 Пересадки: ${costInfo.xnum}<br>
-            ⚠️ Штраф: ${costInfo.xpen}`;
     };
 
     return (
