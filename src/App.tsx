@@ -9,6 +9,8 @@ import { getHintContent, getPlacemarkPreset, } from "./hooks";
 * TODO
 *  [] make map for colors
 *  [] types for hooks
+*  [] more components?
+*  [] main style
 * */
 
 
