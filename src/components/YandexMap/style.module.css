@@ -1,3 +1,7 @@
-.yandexMap {
-    padding: 2em;
+.map {
+    height: 60vh;
+    width: 60vw;
+    border-radius: 8px;
+    border: 2px solid #cecece;
+    padding: 1px;
 }

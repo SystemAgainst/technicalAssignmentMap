@@ -68,13 +68,14 @@ export function YandexMap() {
     }, [selectedStop, costData, sites]);
 
     return (
-        <div className={styles.yandexMap}>
+        <>
+            <h1>Работа с остановками</h1>
             <YMaps>
                 <Map
-                    style={{height: "80vh", width: "80vw"}}
                     defaultState={defaultState}
                     modules={["control.ZoomControl", "control.FullscreenControl", "geoObject.addon.hint"]}
                     onClick={() => setSelectedStop(null)}
+                    className={styles.map}
                 >
                     {sites.map((site, index) => {
                         const isSelected = selectedStop && selectedStop[0] === site.latitude &&
@@ -102,6 +103,6 @@ export function YandexMap() {
                     })}
                 </Map>
             </YMaps>
-        </div>
+        </>
     );
 }
