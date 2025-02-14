@@ -6,15 +6,17 @@ import {
     getPlacemarkPreset,
 } from "@/hooks";
 import { useYandexMapData } from "@/components/YandexMap/useYandexMapData.ts";
+import { useSkeletonLoading } from "@/components/Sleketon/useSkeletonLoading.ts";
+import { SkeletonPage } from "@/components";
 
 
 export function YandexMap() {
     const { selectedStop, setSelectedStop, sites, isSiteLoading, costMap, isCostDataLoading } = useYandexMapData();
-    // const [isLoading, setIsLoading] = useState(true);
+    const isLoading = useSkeletonLoading(isSiteLoading, isCostDataLoading);
 
-    // if (isLoading || isSiteLoading || isCostDataLoading) {
-    //     return <SkeletonPage />;
-    // }
+    if (isLoading || isSiteLoading || isCostDataLoading) {
+        return <SkeletonPage />;
+    }
 
     return (
         <>
