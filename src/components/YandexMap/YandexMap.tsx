@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import {useEffect, useLayoutEffect, useState} from "react";
 import styles from "./style.module.css";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
-import { ICost, ISite, SelectedStopType, } from "@/types";
+import { ICost, ISite, SelectedStopType } from "@/types";
 import { useFetchCSV } from "@/utils";
+import { SkeletonPage } from "@/components";
 import {
     getHintContent,
     getPlacemarkPreset,
@@ -10,21 +11,13 @@ import {
     transformSites,
 } from "@/hooks";
 
-/*
-* TODO
-*  [] make map for colors
-*  [] types for hooks
-*  [] more components?
-*  [] main style
-* */
-
-
 export function YandexMap() {
     const [filteredCosts, setFilteredCosts] = useState<ICost[]>([]);
     const [selectedStop, setSelectedStop] = useState<SelectedStopType>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const { data: sites } = useFetchCSV<ISite>("/sites.csv", transformSites);
-    const { data: costData } = useFetchCSV<ICost>("/costs.csv", transformCosts);
+    const { data: sites, isLoading: isSiteLoading } = useFetchCSV<ISite>("/sites.csv", transformSites);
+    const { data: costData, isLoading: isCostDataLoading } = useFetchCSV<ICost>("/costs.csv", transformCosts);
 
     const defaultState = {
         center: [55.782, 37.615],
@@ -33,7 +26,6 @@ export function YandexMap() {
     };
 
     useEffect(() => {
-        console.log("loading...");
         if (!selectedStop) {
             setFilteredCosts([]);
             return;
@@ -50,9 +42,23 @@ export function YandexMap() {
         setFilteredCosts(costsForSelectedStop);
     }, [selectedStop, costData, sites]);
 
+
+    useLayoutEffect(() => {
+        const skeletonTimer = setTimeout(() => {
+            setIsLoading(false);
+        }, 3000);
+
+        return () => {
+            clearTimeout(skeletonTimer);
+        };
+    }, []);
+
+    if (isLoading || isSiteLoading || isCostDataLoading) {
+        return <SkeletonPage />;
+    }
+
     return (
         <>
-            <h1>Работа с остановками</h1>
             <YMaps>
                 <Map
                     defaultState={defaultState}
