@@ -1,9 +1,10 @@
-import {useEffect, useLayoutEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import styles from "./style.module.css";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { ICost, ISite, SelectedStopType } from "@/types";
 import { useFetchCSV } from "@/utils";
 import { SkeletonPage } from "@/components";
+import { defaultState, modules } from "@/components/YandexMap/constants.ts";
 import {
     getHintContent,
     getPlacemarkPreset,
@@ -11,39 +12,34 @@ import {
     transformSites,
 } from "@/hooks";
 
+
 export function YandexMap() {
-    const [filteredCosts, setFilteredCosts] = useState<ICost[]>([]);
     const [selectedStop, setSelectedStop] = useState<SelectedStopType>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const { data: sites, isLoading: isSiteLoading } = useFetchCSV<ISite>("/sites.csv", transformSites);
     const { data: costData, isLoading: isCostDataLoading } = useFetchCSV<ICost>("/costs.csv", transformCosts);
 
-    const defaultState = {
-        center: [55.782, 37.615],
-        zoom: 15,
-        controls: ["zoomControl", "fullscreenControl"],
-    };
+    const selectedSite = useMemo(() => {
+        return selectedStop
+            ? sites.find((site) => site.latitude === selectedStop[0] && site.longitude === selectedStop[1])
+            : null;
+    }, [selectedStop, sites]);
+
+    const filteredCosts = useMemo(() => {
+        return selectedStop
+            ? costData.filter((cost) => cost.site_id_from === Number(selectedSite?.site_id))
+            : [];
+    }, [selectedStop, costData]);
+
+    const costMap = useMemo(() => {
+        return filteredCosts.reduce((acc, cost) => {
+            acc[cost.site_id_to] = cost;
+            return acc;
+        }, {} as Record<number, ICost | undefined>);
+    }, [filteredCosts]);
 
     useEffect(() => {
-        if (!selectedStop) {
-            setFilteredCosts([]);
-            return;
-        }
-
-        const selectedSite = sites.find(
-            (site) => site.latitude === selectedStop[0] && site.longitude === selectedStop[1]
-        );
-
-        if (!selectedSite) return;
-
-        const costsForSelectedStop = costData.filter((cost) => cost.site_id_from === Number(selectedSite.site_id));
-
-        setFilteredCosts(costsForSelectedStop);
-    }, [selectedStop, costData, sites]);
-
-
-    useLayoutEffect(() => {
         const skeletonTimer = setTimeout(() => {
             setIsLoading(false);
         }, 3000);
@@ -62,34 +58,19 @@ export function YandexMap() {
             <YMaps>
                 <Map
                     defaultState={defaultState}
-                    modules={["control.ZoomControl", "control.FullscreenControl", "geoObject.addon.hint"]}
+                    modules={modules}
                     onClick={() => setSelectedStop(null)}
                     className={styles.map}
                 >
-                    {sites.map((site, index) => {
-                        const isSelected = selectedStop && selectedStop[0] === site.latitude &&
-                            selectedStop[1] === site.longitude;
-
-                        const costForFinalStop = filteredCosts.find(
-                            (cost) => cost.site_id_to === Number(site.site_id)
-                        );
-
-                        return site.latitude && site.longitude ? (
-                            <Placemark
-                                key={index}
-                                geometry={[site.latitude, site.longitude]}
-                                properties={{
-                                    hintContent: getHintContent(site, costForFinalStop),
-                                }}
-                                options={{
-                                    preset: getPlacemarkPreset(isSelected, costForFinalStop ? costForFinalStop.cost : null),
-                                }}
-                                onClick={() => {
-                                    setSelectedStop([site.latitude, site.longitude]);
-                                }}
-                            />
-                        ) : null;
-                    })}
+                    {sites.map((site, index) => (
+                        <Placemark
+                            key={index}
+                            geometry={[site.latitude, site.longitude]}
+                            properties={{ hintContent: getHintContent(site, costMap[Number(site.site_id)]) }}
+                            options={{ preset: getPlacemarkPreset(selectedStop && selectedStop[0] === site.latitude, costMap[Number(site.site_id)]?.cost) }}
+                            onClick={() => setSelectedStop([site.latitude, site.longitude])}
+                        />
+                    ))}
                 </Map>
             </YMaps>
         </>

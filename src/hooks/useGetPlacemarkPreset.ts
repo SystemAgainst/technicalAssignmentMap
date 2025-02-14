@@ -1,7 +1,7 @@
 import { getColorByCost } from "./useGetColorByCost.ts";
 
 
-export const getPlacemarkPreset = (isSelected: boolean, cost: number | null): string => {
+export const getPlacemarkPreset = (isSelected: null | boolean, cost: number | undefined): string => {
     if (isSelected) {
         return "islands#blueIcon"; // Выбранная остановка
     }
