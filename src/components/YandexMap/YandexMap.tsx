@@ -3,7 +3,12 @@ import styles from "./style.module.css";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { ICost, ISite, SelectedStopType, } from "@/types";
 import { useFetchCSV } from "@/utils";
-import { getHintContent, getPlacemarkPreset } from "@/hooks";
+import {
+    getHintContent,
+    getPlacemarkPreset,
+    transformCosts,
+    transformSites,
+} from "@/hooks";
 
 /*
 * TODO
@@ -12,29 +17,6 @@ import { getHintContent, getPlacemarkPreset } from "@/hooks";
 *  [] more components?
 *  [] main style
 * */
-
-
-// Функция преобразования данных для остановок
-const transformSites = (data: any[]): ISite[] =>
-    data.map((site: any): ISite => ({
-        ...site,
-        latitude: parseFloat(site.latitude) || 0,
-        longitude: parseFloat(site.longitude) || 0,
-    }));
-
-// Функция преобразования данных для стоимости
-const transformCosts = (data: any[]): ICost[] =>
-    data.map((cost: any): ICost => ({
-        ...cost,
-        site_id_from: Number(cost.site_id_from),
-        site_id_to: Number(cost.site_id_to),
-        iwait: parseFloat(cost.iwait) || 0,
-        inveht: parseFloat(cost.inveht) || 0,
-        xwait: parseFloat(cost.xwait) || 0,
-        xpen: parseFloat(cost.xpen) || 0,
-        xnum: parseFloat(cost.xnum) || 0,
-        cost: parseFloat(cost.cost) || 0,
-    }));
 
 
 export function YandexMap() {
@@ -51,6 +33,7 @@ export function YandexMap() {
     };
 
     useEffect(() => {
+        console.log("loading...");
         if (!selectedStop) {
             setFilteredCosts([]);
             return;
