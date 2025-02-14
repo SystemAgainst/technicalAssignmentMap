@@ -1,11 +1,9 @@
-import "./App.css";
-import { YandexMap } from "./components/YandexMap/YandexMap.tsx";
+import "@/App.css";
+import { YandexMap } from "@/components";
 
 
-function App() {
+export function App() {
     return (
         <YandexMap />
     );
 }
-
-export default App;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
-import { ICost, ISite, SelectedStopType, } from "../../types.ts";
-import { useFetchCSV } from "../../utils";
-import { getHintContent, getPlacemarkPreset } from "../../hooks";
 import styles from "./style.module.css";
+import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
+import { ICost, ISite, SelectedStopType, } from "@/types";
+import { useFetchCSV } from "@/utils";
+import { getHintContent, getPlacemarkPreset } from "@/hooks";
 
 /*
 * TODO

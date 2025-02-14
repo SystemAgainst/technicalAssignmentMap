@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { parse } from "papaparse";
 
+
 export function useFetchCSV<T>(url: string, transformData: (data: any) => T[]) {
     const [data, setData] = useState<T[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);

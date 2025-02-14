@@ -1,4 +1,4 @@
-import { ICost, ISite } from "../types.ts";
+import { ICost, ISite } from "@/types";
 
 
 export const getHintContent = (site: ISite, costInfo: ICost | undefined) => {
