@@ -1,6 +1,6 @@
 export interface ISite {
-    site_id: string;
-    site_name: string;
+    site_id: number;
+    site_name: number;
     longitude: number;
     latitude: number;
 }

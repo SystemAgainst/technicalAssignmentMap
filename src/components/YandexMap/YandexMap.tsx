@@ -62,15 +62,23 @@ export function YandexMap() {
                     onClick={() => setSelectedStop(null)}
                     className={styles.map}
                 >
-                    {sites.map((site, index) => (
-                        <Placemark
-                            key={index}
-                            geometry={[site.latitude, site.longitude]}
-                            properties={{ hintContent: getHintContent(site, costMap[Number(site.site_id)]) }}
-                            options={{ preset: getPlacemarkPreset(selectedStop && selectedStop[0] === site.latitude, costMap[Number(site.site_id)]?.cost) }}
-                            onClick={() => setSelectedStop([site.latitude, site.longitude])}
-                        />
-                    ))}
+                    {sites.map((site, index) => {
+                        const isSelected = selectedStop
+                            ? selectedStop[0] === site.latitude && selectedStop[1] === site.longitude
+                            : false;
+
+                        const costInfo = costMap[Number(site.site_id)];
+
+                        return (
+                            <Placemark
+                                key={index}
+                                geometry={[site.latitude, site.longitude]}
+                                properties={{ hintContent: getHintContent(site, costInfo) }}
+                                options={{ preset: getPlacemarkPreset(isSelected, costInfo?.cost) }}
+                                onClick={() => setSelectedStop([site.latitude, site.longitude])}
+                            />
+                        );
+                    })}
                 </Map>
             </YMaps>
         </>
